@@ -68,7 +68,7 @@ nav, main, ul {
 table {
   min-width: 100%;
   table-layout: auto;
-  border-collapse: collapse
+  border-collapse: collapse;
 }
 
 #scroll-view {
@@ -77,9 +77,11 @@ table {
 }
 
 tr {
+  outline: thin solid #ffffff2b;
+}
+tr:last-child {
     opacity: 0;
     animation: show 0.5s 0s forwards;
-    outline: thin solid #ffffff2b
 }
 
 /* whoooooooo animations */
