@@ -22,5 +22,6 @@ element, id and class selectors for theming. Javascript is used for communicatio
 it took a handful of itterations of CSS filter settings, different backgrounds and different image formats before 
 settling with the current version due to readability issues and load times. Most combinations of background and blur 
 either made text very difficult to read. This was also complicated by the fact that only one CSS effect can be active 
-at once for an element. There was also some experimentation with CSS animations for the table in order to help soften
-items appearing.
+at once for an element so it was difficult to make the entire website readable, usually it would only be "good" at one
+spot at a time. There was also some experimentation with CSS animations for the table in order to help soften items 
+appearing.

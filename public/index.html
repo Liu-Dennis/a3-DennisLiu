@@ -40,7 +40,7 @@
             <thead>
               <tr>
                 <th scope="col">Name</th>
-                <th scope="col">Subject</th>
+                <th scope="col">Duration</th>
                 <th scope="col">Due date</th>
                 <th scope="col">Urgency</th>
                 <th scope="col">Controls</th>
@@ -53,7 +53,12 @@
         <div class="center">
           <form>
             <input type='text' id='hw_name' placeholder='Name'>
-            <input type='text' id='hw_sub' placeholder='Subject'>
+            <!-- <input type='text' id='hw_sub' placeholder='Subject'> -->
+            <select id="hw_sub">
+              <option value="Short">Short</option>
+              <option value="Normal" selected>Normal</option>
+              <option value="Long">Long</option>
+            </select>
             <input type="date" id="hw_due"/>
             <button id="submit">submit</button>
           </form>
@@ -61,7 +66,12 @@
             <form id="form-dialog" method="dialog">
               <h1>Edit Todo</h1>
               <input type='text' id='modal-name' placeholder='Name'>
-              <input type='text' id='modal-sub' placeholder='Subject'>
+              <!-- <input type='text' id='modal-sub' placeholder='Subject'> -->
+               <select id="modal-sub">
+                <option value="0">Short</option>
+                <option value="1" selected>Normal</option>
+                <option value="2">Long</option>
+              </select>
               <input type="date" id="modal-due"/>
               <button id="modal-cancel-btn">Cancel</button>
               <button id="modal-edit-btn" data-id="">Edit</button>

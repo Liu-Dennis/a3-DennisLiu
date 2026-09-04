@@ -10,11 +10,12 @@ const http = require( 'http' ),
 let appdata = []
 let curr_id = 0
 
-const calc_urgency = function (due) {
+const calc_urgency = function (due, length) {
   let dateEntered = new Date(due);
   let dateNow = Date.now()
 
-  let timeUntil = dateEntered - dateNow
+  // time left to do work
+  let timeUntil = (dateEntered - dateNow) + (dateEntered.getTimezoneOffset() * 60 * 1000)
 
   let daysMs = function(days) {
     return days * 24 * 60 * 60 * 1000
@@ -25,16 +26,25 @@ const calc_urgency = function (due) {
 
   let urgency = (due === "") ? "N/A" : "Low"
 
+  const urgencyBias = {
+  "Short": +2,
+  "Normal": 0,
+  "Long": -3
+  };
+
+  let bias_ms = (daysMs(urgencyBias[length]))
+  console.log(`BIAS: ${length}`)
+
   if (timeUntil < 0) {
     urgency = "Overdue"
   }
-  else if (timeUntil < daysMs(1)) {
+  else if (timeUntil + bias_ms < daysMs(1)) {
     urgency = "Danger"
   }
-  else if (timeUntil < daysMs(3)) {
+  else if (timeUntil + bias_ms < daysMs(3)) {
     urgency = "High"
   }
-  else if (timeUntil < daysMs(7)) {
+  else if (timeUntil + bias_ms < daysMs(7)) {
     urgency = "Normal"
   }
 
@@ -62,7 +72,7 @@ const edit_entry = function (entry_idx, newname, newsub, newdue) {
       entry.name = newname
       entry.subject = newsub
       entry.due = newdue
-      entry.urgency = calc_urgency(newdue)
+      entry.urgency = calc_urgency(newdue, newsub)
     }
   }
   console.log(JSON.stringify(appdata))
@@ -126,7 +136,7 @@ const handlePost = function( request, response ) {
       console.log( JSON.parse( dataString ) )
       // ... do something with the data here!!!
 
-      entry.urgency = calc_urgency(entry.due)
+      entry.urgency = calc_urgency(entry.due, entry.subject)
 
 
       entry.id = curr_id++
