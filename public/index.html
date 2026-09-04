@@ -3,16 +3,72 @@
   <head>
     <title>CS4241 Assignment 2</title>
     <meta charset='utf-8' />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src='js/main.js'></script>
     <link rel='stylesheet' href='css/main.css' />
+    <!-- <link rel="preload" href="/public/src/bg.jpg" as="image"> -->
     
     <!-- get rid of favicon error -->
     <link rel='icon' href='data:;base64,iVBORw0KGgo=' />
   </head>
   <body>
-    <form>
-      <input type='text' id='yourname' value='your name here'>
-      <button>submit</button>
-    </form>
+    <div class="center">
+      <nav class="panel">
+        <ul>
+          <li>
+            <a href="index.html">Home</a>
+          </li>
+          <li>
+            <a href="guestbook.html">Guestbook</a>
+          </li>
+          <li>
+            <a href="">Placeholder</a>
+          </li>
+          <li>
+            <a href="">Placeholder</a>
+          </li>
+          <li>
+            <a href="">Placeholder</a>
+          </li>
+        </ul>
+      </nav>
+      <main class="panel">
+        <h1>Homework Tracker</h1>
+        <!-- <p>"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."</p> -->
+        <div id="scroll-view">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Subject</th>
+                <th scope="col">Due date</th>
+                <th scope="col">Urgency</th>
+                <th scope="col">Controls</th>
+              </tr>
+            </thead>
+            <tbody id="display">
+            </tbody>
+          </table>
+        </div>
+        <div class="center">
+          <form>
+            <input type='text' id='hw_name' placeholder='Name'>
+            <input type='text' id='hw_sub' placeholder='Subject'>
+            <input type="date" id="hw_due"/>
+            <button id="submit">submit</button>
+          </form>
+          <dialog id="edit-dialog">
+            <form id="form-dialog" method="dialog">
+              <h1>Edit Todo</h1>
+              <input type='text' id='modal-name' placeholder='Name'>
+              <input type='text' id='modal-sub' placeholder='Subject'>
+              <input type="date" id="modal-due"/>
+              <button id="modal-cancel-btn">Cancel</button>
+              <button id="modal-edit-btn" data-id="">Edit</button>
+            </form>
+          </dialog>
+        </div>
+      </main>
+    </div>
   </body>
 </html>

@@ -7,11 +7,66 @@ const http = require( 'http' ),
       dir  = 'public/',
       port = 3000
 
-const appdata = [
-  { 'model': 'toyota', 'year': 1999, 'mpg': 23 },
-  { 'model': 'honda', 'year': 2004, 'mpg': 30 },
-  { 'model': 'ford', 'year': 1987, 'mpg': 14} 
-]
+let appdata = []
+let curr_id = 0
+
+const calc_urgency = function (due) {
+  let dateEntered = new Date(due);
+  let dateNow = Date.now()
+
+  let timeUntil = dateEntered - dateNow
+
+  let daysMs = function(days) {
+    return days * 24 * 60 * 60 * 1000
+  }
+  console.log(dateEntered)
+  console.log(dateNow)
+  console.log(timeUntil)
+
+  let urgency = (due === "") ? "N/A" : "Low"
+
+  if (timeUntil < 0) {
+    urgency = "Overdue"
+  }
+  else if (timeUntil < daysMs(1)) {
+    urgency = "Danger"
+  }
+  else if (timeUntil < daysMs(3)) {
+    urgency = "High"
+  }
+  else if (timeUntil < daysMs(7)) {
+    urgency = "Normal"
+  }
+
+  return urgency
+}
+
+const del_entry = function (entry_idx) {
+  newdata = []
+  // console.log(entry_idx)
+  for (let entry of appdata) {
+    // console.log(entry.id == entry_idx)
+    if (entry.id != entry_idx) {
+      // console.log(`${appdata.id} does not equal ${entry_idx}`)
+      newdata.push(entry)
+    }
+    
+  }
+  console.log(JSON.stringify(newdata))
+  appdata = newdata
+}
+
+const edit_entry = function (entry_idx, newname, newsub, newdue) {
+  for (let entry of appdata) {
+    if (entry.id == entry_idx) {
+      entry.name = newname
+      entry.subject = newsub
+      entry.due = newdue
+      entry.urgency = calc_urgency(newdue)
+    }
+  }
+  console.log(JSON.stringify(appdata))
+}
 
 const server = http.createServer( function( request,response ) {
   if( request.method === 'GET' ) {
@@ -26,12 +81,23 @@ const handleGet = function( request, response ) {
 
   if( request.url === '/' ) {
     sendFile( response, 'public/index.html' )
-  }else{
+  }
+  else if(request.url === '/get_data') {
+    response.writeHead( 200, "OK", {'Content-Type': 'text/plain' })
+    response.end(JSON.stringify(appdata))
+  }
+  else{
     sendFile( response, filename )
   }
 }
 
 const handlePost = function( request, response ) {
+
+  // if( request.url === '/add_row' ) {
+  // }
+  // else if(request.url === '/edit_row') {
+  // }
+
   let dataString = ''
 
   request.on( 'data', function( data ) {
@@ -39,13 +105,36 @@ const handlePost = function( request, response ) {
   })
 
   request.on( 'end', function() {
-    console.log( JSON.parse( dataString ) )
-    // ... do something with the data here!!!
+    let entry = JSON.parse( dataString )
+    if(request.url === '/delete_row') {
+        
+      // console.log(`delete row: ${entry.id}, ${typeof entry.id}`)
 
-    response.writeHead( 200, "OK", {'Content-Type': 'text/plain' })
+      del_entry(entry.id)
 
-    // change this to incorporate data
-    response.end('test')
+      response.writeHead( 200, "OK", {'Content-Type': 'text/plain' })
+      // change this to incorporate data
+      // console.log(`current state:${appdata}`)
+      response.end(JSON.stringify(appdata))
+
+    } else if (request.url === '/edit_row') {
+      edit_entry(entry.id, entry.name, entry.sub, entry.due)
+      response.writeHead( 200, "OK", {'Content-Type': 'text/plain' })
+      response.end(JSON.stringify(appdata))
+    }
+    else {
+      console.log( JSON.parse( dataString ) )
+      // ... do something with the data here!!!
+
+      entry.urgency = calc_urgency(entry.due)
+
+
+      entry.id = curr_id++
+      appdata.push(entry)
+      response.writeHead( 200, "OK", {'Content-Type': 'text/plain' })
+      // change this to incorporate data
+      response.end(JSON.stringify(appdata))
+    }
   })
 }
 
