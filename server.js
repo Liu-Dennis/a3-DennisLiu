@@ -1,173 +1,239 @@
-const http = require( 'http' ),
-      fs   = require( 'fs' ),
-      // IMPORTANT: you must run `npm install` in the directory for this assignment
-      // to install the mime library if you're testing this on your local machine.
-      // On Render, make sure `npm install` is your build command.
-      mime = require( 'mime' ),
-      dir  = 'public/',
-      port = 3000
+"use strict"
+/*
+Security considerations + broken features (maybe fix?) !!!!
 
-let appdata = []
-let curr_id = 0
+- user checks only occur on dataview but not data modification so
+other users can modify other's data if they have the database ID (lol)
 
+- Re-directs dont work (i tried fixing and couldnt get it to work)
+
+- Serialization is based on the github id, but this is inadvisable
+because it would prevent other providers from working... maybe switch to something
+platfrom agnostic like the mongodb id but its too late lol
+
+
+*/
+// Imports
+const express = require( 'express' ),
+      app = express(),
+      { MongoClient, ServerApiVersion, ObjectId } = require('mongodb'),
+      http = require( 'dotenv' ).config(),
+      uri = process.env.MONGODB_URI,
+      passport = require('passport'),
+      GitHubStrategy = require('passport-github2').Strategy,
+      session = require('express-session')
+
+// legacy stuff
+// might want to rewrite for better logic later but this can carry over
 const calc_urgency = function (due, length) {
-  let dateEntered = new Date(due);
-  let dateNow = Date.now()
+    let dateEntered = new Date(due);
+    let dateNow = Date.now()
 
-  // time left to do work
-  let timeUntil = (dateEntered - dateNow) + (dateEntered.getTimezoneOffset() * 60 * 1000)
+    // time left to do work
+    let timeUntil = (dateEntered - dateNow) + (dateEntered.getTimezoneOffset() * 60 * 1000)
 
-  let daysMs = function(days) {
-    return days * 24 * 60 * 60 * 1000
-  }
-  console.log(dateEntered)
-  console.log(dateNow)
-  console.log(timeUntil)
-
-  let urgency = (due === "") ? "N/A" : "Low"
-
-  const urgencyBias = {
-  "Short": +2,
-  "Normal": 0,
-  "Long": -3
-  };
-
-  let bias_ms = (daysMs(urgencyBias[length]))
-  console.log(`BIAS: ${length}`)
-
-  if (timeUntil < 0) {
-    urgency = "Overdue"
-  }
-  else if (timeUntil + bias_ms < daysMs(1)) {
-    urgency = "Danger"
-  }
-  else if (timeUntil + bias_ms < daysMs(3)) {
-    urgency = "High"
-  }
-  else if (timeUntil + bias_ms < daysMs(7)) {
-    urgency = "Normal"
-  }
-
-  return urgency
-}
-
-const del_entry = function (entry_idx) {
-  newdata = []
-  // console.log(entry_idx)
-  for (let entry of appdata) {
-    // console.log(entry.id == entry_idx)
-    if (entry.id != entry_idx) {
-      // console.log(`${appdata.id} does not equal ${entry_idx}`)
-      newdata.push(entry)
+    let daysMs = function(days) {
+        return days * 24 * 60 * 60 * 1000
     }
-    
-  }
-  console.log(JSON.stringify(newdata))
-  appdata = newdata
-}
+    // console.log(dateEntered)
+    // console.log(dateNow)
+    // console.log(timeUntil)
 
-const edit_entry = function (entry_idx, newname, newsub, newdue) {
-  for (let entry of appdata) {
-    if (entry.id == entry_idx) {
-      entry.name = newname
-      entry.subject = newsub
-      entry.due = newdue
-      entry.urgency = calc_urgency(newdue, newsub)
+    let urgency = (due === "") ? "N/A" : "Low"
+
+    const urgencyBias = {
+        "Short": +2,
+        "Normal": 0,
+        "Long": -3
+    };
+
+    let bias_ms = (daysMs(urgencyBias[length]))
+        // console.log(`BIAS: ${length}`)
+
+    if (timeUntil < 0) {
+        urgency = "Overdue"
     }
-  }
-  console.log(JSON.stringify(appdata))
+    else if (timeUntil + bias_ms < daysMs(1)) {
+        urgency = "Danger"
+    }
+    else if (timeUntil + bias_ms < daysMs(3)) {
+        urgency = "High"
+    }
+    else if (timeUntil + bias_ms < daysMs(7)) {
+        urgency = "Normal"
+    }
+
+    return urgency
 }
 
-const server = http.createServer( function( request,response ) {
-  if( request.method === 'GET' ) {
-    handleGet( request, response )    
-  }else if( request.method === 'POST' ){
-    handlePost( request, response ) 
+
+// Defined middleware
+const logger = (req,res,next) => {
+    console.log( 'url:', req.url )
+    next()
+}
+
+// Registering general middleware or whatnot
+app.use( logger )
+
+app.use(session({ secret: process.env.PASSPORT_SECRET, resave: false, saveUninitialized: false }));
+app.use(passport.initialize());
+app.use(passport.session());
+
+app.use( express.static( 'public' ) )
+
+// app.use( ensureAuthenticated, express.static( 'app.html' ) )
+
+
+// DB init
+// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+const client = new MongoClient(uri, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
   }
 })
+let collection = null
+let users = null
 
-const handleGet = function( request, response ) {
-  const filename = dir + request.url.slice( 1 ) 
+// app.use( (req,res,next) => {
+// if( collection !== null || users !== null) {
+//     next()
+// }else{
+//     res.status( 503 ).send()
+// }
+// })
 
-  if( request.url === '/' ) {
-    sendFile( response, 'public/index.html' )
-  }
-  else if(request.url === '/get_data') {
-    response.writeHead( 200, "OK", {'Content-Type': 'text/plain' })
-    response.end(JSON.stringify(appdata))
-  }
-  else{
-    sendFile( response, filename )
-  }
-}
 
-const handlePost = function( request, response ) {
+// from example code
+app.get('/auth/github',
+passport.authenticate('github', { scope: [ 'user:email' ] }));
 
-  // if( request.url === '/add_row' ) {
-  // }
-  // else if(request.url === '/edit_row') {
-  // }
+// from example code
+app.get('/auth/github/callback', 
+passport.authenticate('github', { failureRedirect: '/' }),
+function(req, res) {
+    res.redirect('/app.html');
+});
 
-  let dataString = ''
+async function run() {
+    await client.connect()
+    collection = await client.db("todo").collection("items")
+    users = await client.db("todo").collection("users")
+    console.log('Connected to DB')
 
-  request.on( 'data', function( data ) {
-      dataString += data 
-  })
+    console.log(process.env.GITHUB_CLIENTID)
+    console.log(process.env.GITHUB_CLIENTSECRET)
+    // auth callback and user search
 
-  request.on( 'end', function() {
-    let entry = JSON.parse( dataString )
-    if(request.url === '/delete_row') {
-        
-      // console.log(`delete row: ${entry.id}, ${typeof entry.id}`)
+    // from example code
+    passport.serializeUser(function(user, done) {
+        done(null, user.id);
+    });
 
-      del_entry(entry.id)
+    // from example code
+    passport.deserializeUser(async function(obj, done) {
+        const user = await users.findOne({ id: obj })
+        console.log(`Deserializing: ${obj} --> ${JSON.stringify(user)}`)
+        done(null, user);
+    });
+    
+    // from example code
+    passport.use(new GitHubStrategy({
+        clientID: process.env.GITHUB_CLIENTID,
+        clientSecret: process.env.GITHUB_CLIENTSECRET,
+        callbackURL: "http://localhost:3000/auth/github/callback"
+    },
+    async function(accessToken, refreshToken, profile, done) {
+        // console.log(JSON.stringify(profile))
+        let user_obj = {id: profile.id, username: profile.username}
+        const user = await users.findOne({ id: profile.id })
 
-      response.writeHead( 200, "OK", {'Content-Type': 'text/plain' })
-      // change this to incorporate data
-      // console.log(`current state:${appdata}`)
-      response.end(JSON.stringify(appdata))
+        if (!user) {
+            const result = await users.insertOne( user_obj )
+        }
 
-    } else if (request.url === '/edit_row') {
-      edit_entry(entry.id, entry.name, entry.sub, entry.due)
-      response.writeHead( 200, "OK", {'Content-Type': 'text/plain' })
-      response.end(JSON.stringify(appdata))
+        done(null, user_obj)
     }
-    else {
-      console.log( JSON.parse( dataString ) )
-      // ... do something with the data here!!!
+    ));
 
-      entry.urgency = calc_urgency(entry.due, entry.subject)
+    // Registering GET middleware
+    app.get('/entries', ensureAuthenticated, async (req, res) => {
+        if (collection !== null) {
+            const docs = await collection.find({user: req.user.id}).toArray()
+            res.json( docs )
+        }
+    })
 
+    // from example code
+    app.get('/logout', function(req, res, next){
+        req.logout(function(err) {
+            if (err) { return next(err); }
+            res.redirect('/');
+        });
+    });
 
-      entry.id = curr_id++
-      appdata.push(entry)
-      response.writeHead( 200, "OK", {'Content-Type': 'text/plain' })
-      // change this to incorporate data
-      response.end(JSON.stringify(appdata))
-    }
-  })
+    app.get('/user/username', function(req, res) {
+        res.json(req.user.username)
+    })
+    
+    // app.get("/docs", async (req, res) => {
+    //     if (collection !== null) {
+    //     const docs = await collection.find({}).toArray()
+    //     res.json( docs )
+    //     }
+    // })
+
+    // Registering POST middleware
+    app.post( '/submit', ensureAuthenticated, express.json(), async ( req, res ) => {
+        // new JSON Format => (_id, name, duration, urgency, due)
+        // -1 id == new entry
+        // empty name == delete entry
+        console.log(`Submit: ${JSON.stringify( req.body )}`)
+        if (req.body.id === -1) {
+            // Add
+            req.body.urgency = calc_urgency(req.body.due, req.body.duration)
+            req.body.user = req.user.id
+            console.log(`ADDING FOR USER ${JSON.stringify(req.user)})`)
+            delete req.body.id
+            const result = await collection.insertOne( req.body )
+            // res.json( result )
+            // appdata.push(req.body)
+        }
+        else if (req.body.name === "") {
+            const result = await collection.deleteOne({ 
+                _id:new ObjectId( req.body.id ) 
+            })
+        }
+        else {
+            // Edit
+            const result = await collection.updateOne(
+                { _id: new ObjectId( req.body.id ) },
+                { $set:{ name:req.body.name, 
+                    duration:req.body.duration,
+                    due: req.body.due,
+                    urgency:calc_urgency(req.body.due, req.body.duration) } }
+            )
+            // entryOverwrite(req.body.id, req.body.name, req.body.duration, req.body.due)
+        }
+
+        // res.writeHead( 200, { 'Content-Type': 'application/json'})
+        // res.end( JSON.stringify( appdata ) )
+        if (collection !== null) {
+            const docs = await collection.find({user: req.user.id}).toArray()
+            res.json( docs )
+        }
+    })
 }
 
-const sendFile = function( response, filename ) {
-   const type = mime.getType( filename ) 
+// open DB connection
+run()
 
-   fs.readFile( filename, function( err, content ) {
+// Start listening for requests
+app.listen( process.env.PORT || 3000 )
 
-     // if the error = null, then we've loaded the file successfully
-     if( err === null ) {
-
-       // status code: https://httpstatuses.com
-       response.writeHeader( 200, { 'Content-Type': type })
-       response.end( content )
-
-     }else{
-
-       // file not found, error code 404
-       response.writeHeader( 404 )
-       response.end( '404 Error: File Not Found' )
-
-     }
-   })
+function ensureAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) { return next(); }
+  res.redirect('/')
 }
-
-server.listen( process.env.PORT || port )

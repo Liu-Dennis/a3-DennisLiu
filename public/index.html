@@ -1,84 +1,27 @@
 <!doctype html>
+
 <html lang='en'>
   <head>
-    <title>CS4241 Assignment 2</title>
+    <title>CS4241 Assignment 3</title>
     <meta charset='utf-8' />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src='js/main.js'></script>
-    <link rel='stylesheet' href='css/main.css' />
-    <!-- <link rel="preload" href="/public/src/bg.jpg" as="image"> -->
-    
+    <!-- <script src='js/main.js'></script> -->
+    <link rel='stylesheet' href='css/login.css' />
     <!-- get rid of favicon error -->
     <link rel='icon' href='data:;base64,iVBORw0KGgo=' />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
   </head>
   <body>
-    <div class="center">
-      <nav class="panel">
-        <ul>
-          <li>
-            <a href="index.html">Home</a>
-          </li>
-          <li>
-            <a href="guestbook.html">Guestbook</a>
-          </li>
-          <li>
-            <a href="">Placeholder</a>
-          </li>
-          <li>
-            <a href="">Placeholder</a>
-          </li>
-          <li>
-            <a href="">Placeholder</a>
-          </li>
-        </ul>
-      </nav>
-      <main class="panel">
-        <h1>Homework Tracker</h1>
-        <!-- <p>"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."</p> -->
-        <div id="scroll-view">
-          <table>
-            <thead>
-              <tr>
-                <th scope="col">Name</th>
-                <th scope="col">Duration</th>
-                <th scope="col">Due date</th>
-                <th scope="col">Urgency</th>
-                <th scope="col">Controls</th>
-              </tr>
-            </thead>
-            <tbody id="display">
-            </tbody>
-          </table>
+    <div id="outer-flex">
+      <main id="login-panel">
+        <h1>Login with OAuth</h1>
+        <div id="login-wrapper">
+          <a href="/auth/github" class="pure-button pure-u-1-1">Login with GitHub</a>
         </div>
-        <div class="center">
-          <form>
-            <input type='text' id='hw_name' placeholder='Name'>
-            <!-- <input type='text' id='hw_sub' placeholder='Subject'> -->
-            <select id="hw_sub">
-              <option value="Short">Short</option>
-              <option value="Normal" selected>Normal</option>
-              <option value="Long">Long</option>
-            </select>
-            <input type="date" id="hw_due"/>
-            <button id="submit">submit</button>
-          </form>
-          <dialog id="edit-dialog">
-            <form id="form-dialog" method="dialog">
-              <h1>Edit Todo</h1>
-              <input type='text' id='modal-name' placeholder='Name'>
-              <!-- <input type='text' id='modal-sub' placeholder='Subject'> -->
-               <select id="modal-sub">
-                <option value="0">Short</option>
-                <option value="1" selected>Normal</option>
-                <option value="2">Long</option>
-              </select>
-              <input type="date" id="modal-due"/>
-              <button id="modal-cancel-btn">Cancel</button>
-              <button id="modal-edit-btn" data-id="">Edit</button>
-            </form>
-          </dialog>
-        </div>
-      </main>
+      </main>   
     </div>
   </body>
 </html>

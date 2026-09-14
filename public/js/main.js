@@ -16,13 +16,13 @@ const build_table = function(table, json_arr) {
 
     // trow.innerText = JSON.stringify(item)
     tname.innerHTML = `<p>${item.name}</p>`
-    tsub.innerHTML = `<p>${item.subject}</p>`
+    tsub.innerHTML = `<p>${item.duration}</p>`
     tdue.innerHTML = `<p>${item.due}</p>`
     turg.innerHTML = `<p>${item.urgency}</p>`
-    tdelete.innerHTML = `<button class="del-btn" type="button" data-id="${item.id}">Delete</button>
-                         <button class="edit-btn" type="button" data-id="${item.id}">Edit</button>`
+    tdelete.innerHTML = `<button class="pure-button del-btn" type="button" data-id="${item._id}">Delete</button>
+                         <button class="pure-button edit-btn" type="button" data-id="${item._id}">Edit</button>`
 
-    trow.id = `row-${item.id}`
+    trow.id = `row-${item._id}`
     
     table.appendChild(trow)
     trow.appendChild(tname)
@@ -34,6 +34,7 @@ const build_table = function(table, json_arr) {
     let btns = document.querySelectorAll(".del-btn")
     for (let btn of btns) {
       btn.onclick = function() {
+        // debugger
         console.log(btn.dataset.id)
         delete_row(btn.dataset.id)
       }
@@ -55,8 +56,6 @@ const build_table = function(table, json_arr) {
           edit_row(this.dataset.id, input_name.value, input_sub.value, input_due.value)
         }
 
-
-
         form.appendChild(edit_btn)
         dialog.showModal()
 
@@ -76,7 +75,7 @@ const submit = async function( event ) {
   const input_name = document.querySelector( '#hw_name' ),
         input_sub = document.querySelector( '#hw_sub' ),
         input_due = document.querySelector( '#hw_due' ),
-        json = { name: input_name.value, subject: input_sub.value, due: input_due.value },
+        json = { id: -1, name: input_name.value, duration: input_sub.value, due: input_due.value },
         body = JSON.stringify( json )
 
   if (input_name.value === '') {
@@ -85,56 +84,68 @@ const submit = async function( event ) {
 
   const response = await fetch( '/submit', {
     method:'POST',
+    headers: { 'Content-Type': 'application/json' },
     body 
   })
 
   const arr = await response.text()
-
   build_table(display, JSON.parse(arr))
 
   console.log(JSON.parse(arr))
 }
 
 const delete_row = async function( data ) {
-  body = JSON.stringify({id:data})
+  body = JSON.stringify({id:data, name:""})
   console.log(`posting: ${body}`)
-  const response = await fetch( '/delete_row', {
+
+  const response = await fetch( '/submit', {
     method:'POST',
+    headers: { 'Content-Type': 'application/json' },
     body
   })
+
+  // debugger
+
+
   const arr = await response.text()
   build_table(display, JSON.parse(arr))
   console.log(JSON.parse(arr))
 }
 
 
-const edit_row = async function( replace, name, subject, due ) {
-  body = JSON.stringify({id:replace, name:name, sub:subject, due:due})
+const edit_row = async function( replace, name, length, due ) {
+  body = JSON.stringify({id:replace, name:name, duration:length, due:due})
   console.log(`posting: ${body}`)
-  const response = await fetch( '/edit_row', {
+
+  const response = await fetch( '/submit', {
     method:'POST',
+    headers: { 'Content-Type': 'application/json' },
     body
   })
+
   const arr = await response.text()
   build_table(display, JSON.parse(arr))
   console.log(JSON.parse(arr))
 }
 
 const reload = async function( event ) {  
-  const response = await fetch('/get_data', {method:'GET'})
+  const user_text = document.querySelector("#user-text")
+
+  const response = await fetch('/entries', {method:'GET'})
   const arr = await response.text()
+  const response2 = await fetch('/user/username', {method:'GET'})
+  const arr2 = await response2.text()
+  user_text.innerHTML = `Welcome, ${JSON.parse(arr2)}`
 
   build_table(display, JSON.parse(arr))
-
   console.log(JSON.parse(arr))
 }
 
 
 window.onload = function() {
   const submit_btn = document.querySelector("#submit")
+
   submit_btn.onclick = submit
-  // ul = document.createElement('ul')
   display = document.querySelector("#display")
-  // document.body.appendChild(ul)
   reload()
 }
