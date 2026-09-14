@@ -15,13 +15,16 @@ platfrom agnostic like the mongodb id but its too late lol
 */
 // Imports
 const express = require( 'express' ),
-      app = express(),
-      { MongoClient, ServerApiVersion, ObjectId } = require('mongodb'),
-      http = require( 'dotenv' ).config(),
-      uri = process.env.MONGODB_URI,
-      passport = require('passport'),
-      GitHubStrategy = require('passport-github2').Strategy,
-      session = require('express-session')
+app = express(),
+{ MongoClient, ServerApiVersion, ObjectId } = require('mongodb'),
+http = require( 'dotenv' ).config(),
+uri = process.env.MONGODB_URI,
+passport = require('passport'),
+GitHubStrategy = require('passport-github2').Strategy,
+session = require('express-session'),
+compression = require('compression'),
+favicon = require('serve-favicon'),
+path = require('path')
 
 // legacy stuff
 // might want to rewrite for better logic later but this can carry over
@@ -75,11 +78,11 @@ const logger = (req,res,next) => {
 
 // Registering general middleware or whatnot
 app.use( logger )
-
+app.use(favicon('public/favicon.ico'));
+app.use(compression());
 app.use(session({ secret: process.env.PASSPORT_SECRET, resave: false, saveUninitialized: false }));
 app.use(passport.initialize());
 app.use(passport.session());
-
 app.use( express.static( 'public' ) )
 
 // app.use( ensureAuthenticated, express.static( 'app.html' ) )

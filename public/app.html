@@ -3,13 +3,13 @@
   <head>
     <title>CS4241 Assignment 3</title>
     <meta charset='utf-8' />
+    <meta name="description" content="Homework todo tracker main user dashboard">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src='js/main.js'></script>
+    <script src='js/main.js' defer></script>
     <link rel='stylesheet' href='css/main.css' />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
     <!-- <link rel="preload" href="/public/src/bg.jpg" as="image"> -->
-    <!-- get rid of favicon error -->
-    <link rel='icon' href='data:;base64,iVBORw0KGgo=' />
+    <!-- <link rel="icon" href="favicon.ico"> -->
   </head>
   <body>
     <div class="center">
@@ -37,15 +37,18 @@
         </div>
         <div class="center">
           <form class="pure-form">
-            <input type='text' id='hw_name' placeholder='Name'>
-            <!-- <input type='text' id='hw_sub' placeholder='Subject'> -->
-            <select id="hw_sub">
-              <option value="Short">Short</option>
-              <option value="Normal" selected>Normal</option>
-              <option value="Long">Long</option>
-            </select>
-            <input type="date" id="hw_due"/>
-            <button class="pure-button pure-button-primary" id="submit">submit</button>
+            <fieldset>
+              <input type='text' id='hw_name' placeholder='Name'>
+              <!-- <input type='text' id='hw_sub' placeholder='Subject'> -->
+                <label for="hw_sub">Duration: </label>
+                <select id="hw_sub">
+                  <option value="Short">Short</option>
+                  <option value="Normal" selected>Normal</option>
+                  <option value="Long">Long</option>
+                </select>
+              <label for="hw_due">Due: </label><input type="date" id="hw_due"/>
+              <button class="pure-button pure-button-primary" id="submit">submit</button>
+            </fieldset>
           </form>
           <dialog id="edit-dialog">
             <form class="pure-form" id="form-dialog" method="dialog">
