@@ -24,7 +24,8 @@ GitHubStrategy = require('passport-github2').Strategy,
 session = require('express-session'),
 compression = require('compression'),
 favicon = require('serve-favicon'),
-path = require('path')
+path = require('path'),
+morgan = require('morgan')
 
 // legacy stuff
 // might want to rewrite for better logic later but this can carry over
@@ -77,13 +78,15 @@ const logger = (req,res,next) => {
 }
 
 // Registering general middleware or whatnot
-app.use( logger )
+// app.use( logger )
 app.use(favicon('public/favicon.ico'));
 app.use(compression());
 app.use(session({ secret: process.env.PASSPORT_SECRET, resave: false, saveUninitialized: false }));
 app.use(passport.initialize());
 app.use(passport.session());
 app.use( express.static( 'public' ) )
+app.use(morgan('combined'));
+
 
 // app.use( ensureAuthenticated, express.static( 'app.html' ) )
 
@@ -146,7 +149,7 @@ async function run() {
     passport.use(new GitHubStrategy({
         clientID: process.env.GITHUB_CLIENTID,
         clientSecret: process.env.GITHUB_CLIENTSECRET,
-        callbackURL: "http://localhost:3000/auth/github/callback"
+        callbackURL: "https://a3-dennisliu.onrender.com/auth/github/callback"
     },
     async function(accessToken, refreshToken, profile, done) {
         // console.log(JSON.stringify(profile))
