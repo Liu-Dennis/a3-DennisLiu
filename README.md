@@ -13,6 +13,7 @@ I used Pure CSS which stylized all forms and buttons for my website. I chose thi
 - Webpage will not work without authentication, you must login for it to function correctly.
 - App page will not redirect you to login if you are not logged in, you must manually go to the login page (index page) to login before continuing.
 - Lighthouse test must be conducted while signed in, it will through errors otherwise.
+- Lighthouse test most accurate with no extensions - usually private/incognito will disable them.
 
 ## Technical Achievements
 - **Tech Achievement 1:**: Implemented OAuth authentication with GitHub strategy.
