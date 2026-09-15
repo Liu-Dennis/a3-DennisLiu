@@ -1,28 +1,31 @@
-https://a2-dennisliu.onrender.com/
+https://a3-dennisliu.onrender.com/
 
 ## Basic Online Homework Tracker
-Similar to a to-do list, you are able to input a task (an assignment) as well as any other associated information
-such as the time it would take to finish and possibly a due date. The server then calculates an urgency level for any specific assignment
-given that a due date is provided. Urgency level is determined by how close the due date is and how long it was specified
-that it would take to finish said assignment. If no due date is supplied, it simply ommits adding a urgency level.
+Keeps track of homework assignments and calculates urgency based on available data entered into the task (Will be skipped if insufficent data supplied) Each entry is associated with a user account and is not globally visable.
+
+Some challenges faced was the fact that it was based off of project-2 rather than starting from scratch, a lot of code was not designed with authentication, database and express and had to be extensively rewritten and modified. Authentication also was a point of difficulty and while is functional for this assignment, some bugs still remain (most notably the lack of re-direct when trying to access restricted apis while signed out). It was also difficult to keep track of proper security and there are some issues that have not been resolved that technically allows (but very unlikely) the modification of other users data from a different user.
+
+I used passport.js with the GitHub strategy because I thought it would be cool and useful in the future.
+
+I used Pure CSS which stylized all forms and buttons for my website. I chose this because my website was already extensively styled with existing CSS and to restyle it with a CSS framework would actually take a significant more amount of time. I chose a compromise by simplying aspects of what was already there and implemented Pure CSS to style anything that was not styled to begin with. -- The only override was to make the primary button color for Pure CSS slightly darker.
+
+**Important information**: 
+- Webpage will not work without authentication, you must login for it to function correctly.
+- App page will not redirect you to login if you are not logged in, you must manually go to the login page (index page) to login before continuing.
+- Lighthouse test must be conducted while signed in, it will through errors otherwise.
 
 ## Technical Achievements
-- **Single page application**: Website is able to keep in 2 way communication with server and keeps the user-side list
-up to date with the server side content on any addition or update to the list. 
+- **Tech Achievement 1:**: Implemented OAuth authentication with GitHub strategy.
 
-- **Data modification**: In addition to being able to delete entries, modifications can be made to any existing entry in
-the the list. Simply click the edit button and you are able to make modifications to the current entry by accessing the 
-edit modal.
+- **Tech Achievement 2:**: 100% lighthouse test reached on all 4 catagories required.
 
-- **Base Requirements**: Utilized HTML forms inorder to submit data to the backend. Single page website validates.
-CSS flexbox used for centering main div in addition to arranging out the navigation bar's links. CSS uses all three
-element, id and class selectors for theming. Javascript is used for communication for two ways.
+- **Tech Achievement 3:**: Uses mutitude of middleware packages:
+1) passport - Abstracts most of the implentation for authentication with external authentication providers.
+2) session - Keeps track of what users are currently logged in (keeps authentication between requests and gives user cookies).
+3) compression - Applies compression (gzip) to files to in an attempt to conserve bandwith and speed up network downloads.
+4) Favicon - Includes favicon globally to all pages.
+5) morgan - Logs incoming server traffic at far greater detail (with information such as user-agent string and request type).
+
 
 ### Design/Evaluation Achievements
-- **Website Theming**: Themed website with blurred panel, background. While relatively straightfoward to implement,
-it took a handful of itterations of CSS filter settings, different backgrounds and different image formats before 
-settling with the current version due to readability issues and load times. Most combinations of background and blur 
-either made text very difficult to read. This was also complicated by the fact that only one CSS effect can be active 
-at once for an element so it was difficult to make the entire website readable, usually it would only be "good" at one
-spot at a time. There was also some experimentation with CSS animations for the table in order to help soften items 
-appearing.
+- None
